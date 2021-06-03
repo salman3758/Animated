@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Smart Energy Meter</title>
+    <!-- favicon -->
+    <link rel="shortcut icon" href="./images/logo3.png" type="image/x-icon" />
+    <!-- font-awesome -->
+    <link rel="stylesheet" href="fontawesome-free-5.9.0-web/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Raleway:200,100,400" rel="stylesheet" type="text/css" />
+    <!-- styles css -->
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+
+
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-database.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyChzYE4nqqBG9oDEV9Z-McFG5c0we9LS5s",
+    authDomain: "meter-gsm.firebaseapp.com",
+    databaseURL: "https://meter-gsm-default-rtdb.firebaseio.com",
+    projectId: "meter-gsm",
+    storageBucket: "meter-gsm.appspot.com",
+    messagingSenderId: "862873100793",
+    appId: "1:862873100793:web:0de17216e38c85d663dd28",
+    measurementId: "G-N66PS4ZCXT"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+
+
+// ANIMATION 
+
+var TxtRotate = function(el, toRotate, period) {
+  this.toRotate = toRotate;
+  this.el = el;
+  this.loopNum = 0;
+  this.period = parseInt(period, 10) || 2000;
+  this.txt = '';
+  this.tick();
+  this.isDeleting = false;
+};
+
+TxtRotate.prototype.tick = function() {
+  var i = this.loopNum % this.toRotate.length;
+  var fullTxt = this.toRotate[i];
+
+  if (this.isDeleting) {
+    this.txt = fullTxt.substring(0, this.txt.length - 1);
+  } else {
+    this.txt = fullTxt.substring(0, this.txt.length + 1);
+  }
+
+  this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
+
+  var that = this;
+  var delta = 300 - Math.random() * 100;
+
+  if (this.isDeleting) { delta /= 2; }
+
+  if (!this.isDeleting && this.txt === fullTxt) {
+    delta = this.period;
+    this.isDeleting = true;
+  } else if (this.isDeleting && this.txt === '') {
+    this.isDeleting = false;
+    this.loopNum++;
+    delta = 500;
+  }
+
+  setTimeout(function() {
+    that.tick();
+  }, delta);
+};
+
+window.onload = function() {
+  var elements = document.getElementsByClassName('txt-rotate');
+  for (var i=0; i<elements.length; i++) {
+    var toRotate = elements[i].getAttribute('data-rotate');
+    var period = elements[i].getAttribute('data-period');
+    if (toRotate) {
+      new TxtRotate(elements[i], JSON.parse(toRotate), period);
+    }
+  }
+  // INJECT CSS
+  var css = document.createElement("style");
+  css.type = "text/css";
+  css.innerHTML = ".txt-rotate > .wrap { border-right: 0.08em solid #666 }";
+  document.body.appendChild(css);
+};
+
+
+
+
+</script>
+
+
+
+    <!-- header  -->
+    <header id="home">
+      <div id="output"></div>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.18.1/babel.min.js"></script>
+ <!-- Your custom script here -->
+
+ 
+
+      <!-- navbar -->
+      <nav class="navbar example">
+        <div class="nav-center">
+          <!-- nav header -->
+          <div class="nav-header">
+            <a href="#home" class="scroll-link hover hover-4"><img src="./images/logo3.png" width="50px" height="50px" style="color:yellow" class="nav-logo" alt="" /></a>
+            <button
+              type="button"
+              class="nav-toggle"
+              id="nav-toggle"
+              aria-label="nav toggler "
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+          <!-- end of nav header -->
+          <!-- nav links -->
+          <div class="nav-links" id="nav-links">
+            <!-- single link -->
+            <a href="#home" class="scroll-link nav-link">
+              home
+            </a>
+            <!-- end of single link -->
+            <!-- single link -->
+            <a href="#about" class=" scroll-link nav-link">
+              Explore
+            </a>
+            <!-- end of single link -->
+			<a href="#monitor" class=" scroll-link nav-link">
+              meter
+            </a>
+            <a href="#analytics" class=" scroll-link nav-link">
+              analytics
+            </a>
+            <!-- single link -->
+            <a href="#services" class="nav-link scroll-link">
+              Features
+            </a>
+            <!-- single link -->
+            <a href="#featured" class="nav-link scroll-link">
+              specs
+            </a>
+            <!-- end of single link -->
+            
+            <a href="#services2" class="nav-link scroll-link">
+              About Us
+            </a>
+            <!-- end of single link -->
+            <!-- single link -->
+            <!-- end of single link -->
+          </div>
+          <!-- end of nav links -->
+          <!-- nav social media icons -->
+          <!-- footer icons -->
+          <div class="nav-icons">
+            <a href="https://www.twitter.com" target="_blank" class="nav-icon"><i class="fab fa-facebook"></i></a>
+            <!-- <a href="https://www.twitter.com" target="_blank" class="nav-icon"><i class="fab fa-twitter"></i></a> -->
+            <a href="https://www.twitter.com" target="_blank" class="nav-icon"><i class="fab fa-squarespace"></i></a>
+          <!-- end of nav social media icons -->
+        </div>
+      </nav>
+      <!-- hero component -->
+      <div class="hero">
+        <div class="hero-banner">
+          <h1 class="hero-title text"></h1>
+          
+          <!-- <p class="hero-text">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          </p> -->
+          <div class='mflex'><a href="#monitor" id="monbtn" class= "btn-white scroll-link">Monitor your Energy Usage Live</a>
+          </div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- end of header  -->
+    <!-- about section -->
+    <section class="section about white" id="about">
+      <!-- title  -->
+      <div class="title-wrapper">
+        <h2 class="title">Exp<span class="subtitle">lore</span></h2>
+      </div>
+      <!-- end of title  -->
+      <!-- about-center -->
+      <div class="section-center about-center">
+        <!-- about img wrapper-->
+        <div class="about-img">
+        <div class=overrlay>
+          <img
+            src="./images/about.jpg"
+            class="about-photo"
+            alt="awesome beach"
+          />
+        </div>
+        </div>
+        <!-- about info -->
+        <article class="about-info">
+        
+          <h3 class="sm" STYLE="font-family: Raleway;">WHY USE SMART METER<br>
+            <span
+               class="txt-rotate txt-small"
+               data-period="1000"
+               data-rotate='[ "CONTROL BILL","MOBILE MONITORING","REDUCE ENERGY WASTAGE"]'></span><BR>
+               
+          </h3>
+          <p>
+            Take control of your energy use with Smart Energy Meter. Our real-time electricity monitor
+             helps you eliminate unexpected high utility bills by showing you where and when you are using electricity.
+          </p><br><br>
+          <p>
+             Always know what's happening in your home even when you are away. Keep eye on the energy consumption of your home in real-time. Provides an accurate overview of changes in energy consumption. That information is relayed form
+             the Smart Meter to the
+             Cloud app via the Wifi-connector gateway — a small internet-connected device attached to your meter..
+          </p>
+          <span class="btn-primary bt">read more</span>
+          <div id="output"></div>
+        </article>
+      </div>
+    </section>
+	
+	  <div class="cursor"></div>
+
+	
+	
+	
+	
+	<section class="section about white" id="monitor">
+      <!-- title  -->
+      <div class="title-wrapper">
+          <h2 class="title title2" id="monusg STYLE="font-family: Raleway;">
+            MONITOR<br>
+               <span class="subtitle2">ENERGY USAGE</span>
+          </h2>
+      </div>
+      <!-- end of title  -->
+      <!-- about-center -->
+	  <table id="monitordisp" class="mf" >
+        <!-- about img wrapper-->
+		<!--<h4 style="font-family:DS-Digital">
+		cost = Rs 10 / KWh 
+		</h4>-->
+		<tr class="mf"> 
+          <th >Available Units<span class="small"> KWH</span></th>
+        <!-- about info -->
+          <th  class="num" id="au">-----</th>
+      </tr>
+	  <tr class="mf">
+          <th >Consumed Units<span class="small"> KWH</span></th>
+        <!-- about info -->
+          <th  class="num" id="cu">-----</th>
+      </tr>
+
+      <tr class="mf">
+        <th >Voltage<span class="small"> (RMS)-From Sensor</span> </th>
+      <!-- about info -->
+        <th class="num" id="voltage">-----</th>
+    </tr>
+      <tr class="mf">
+        <th >Current<span class="small"> (RMS)-From Sensor</span></th>
+      <!-- about info -->
+        <th class="num" id="current">-----A</th>
+    </tr>
+	  <tr class="mf">
+          <th >Power Factor</th>
+        <!-- about info -->
+          <th class="num" id="pf">0.9998</th>
+      </tr>
+	  
+	  
+	  <tr class="mf">
+          <th class="orbsitit">Active Power<span class="small"> WATT</span></th>
+        <!-- about info -->
+          <th class="num" id="ap">-----W</th>
+      </tr>
+	  <tr class="mf">
+          <th >Reactive Power<span class="small"> VAR</span></th>
+        <!-- about info -->
+          <th class="num" id="rp">-----VAR</th>
+      </tr>
+	  <tr class="mf">
+          <th >Apparent Power<span class="small"> VA</span></th>
+        <!-- about info -->
+          <th class="num" id="app">-----VA</th>
+      </tr>
+	  </table>
+    <div class="statusdiv">
+    <div class="mflex">
+      <h4 class=" break btn-primary accinfo status" id="status" >---------------</h4>
+     
+        <h4 class="break btn-primary accinfo btn22" id="charge" onclick="recharge()">RECHARGE ACCOUNT</h4>
+        </div>
+        </div>
+        <div class="mflex">
+        <h4 class="black" id="tstamp" >Last Recharged: </h4>
+</div>
+<!-- <div class="statusdiv">
+  <div class="mflex">
+        <div id="tablediv black">
+          <table style="color: #fff;"><caption>Calculations based on NEPRA Tarrif</caption>
+            <tr>
+            <th>Units</th>
+            <th>Rate (Rs / KWh)</th>
+            </tr>
+            <tr>
+            <td>01-100</td>
+            <td>5.79</td>
+            </tr>
+            <tr>
+              <td>101-200</td>
+              <td>8.11</td>
+              </tr>
+              <tr>
+                <td>201-300</td>
+                <td>10.20</td>
+                </tr>
+                <tr>
+                  <td>301-700</td>
+                  <td>19.25</td>
+                  </tr>
+                  <tr>
+                    <td>Above 700</td>
+                    <td>22.35</td>
+                    </tr>
+          </table></div>
+
+        </div></div> -->
+	  <!-- <h4 class="d7" style="font-family:Digital-7; margin-left:20px;">
+      rate =>
+      01-100 Units        5.79 Rs./ KWh<br>
+      101-200 Units       8.11 Rs./ KWh<br>
+      201-300 Units       10.20 Rs./ KWh<br>
+      301-700Units        19.25 Rs./ KWh<br>
+      Above 700 Units     22.35 Rs.? KWh</h4> -->
+      
+    </section>
+
+
+    <section class="section about white" id="analytics">
+      <div class="title-wrapper">
+    <h2 class="title">ANALY<span class="subtitle">TICS</span></h2></div>
+    <div class="section about mflex" id="plotly">
+    <div id="tester"></div></div>
+    <div class="mflex"><h4 class=" break btn-primary accinfo status statusgraph" id="status" >---------------</h4>
+    </div>
+    <div class="section about mflex" id="plotly">
+      <div id="barplot"></div></div>
+      <div class="mflex"><h4 class=" break btn-primary accinfo status statusgraph" id="status" >---------------</h4>
+      </div>
+    </section>
+	
+    <section class="section about black" id="howitworks">
+      <!-- title  -->
+
+      
+
+
+      <div class="title-wrapper">
+        <h2 class="title title2">How<span class="subtitle2"> It Works</span></h2>
+      </div>
+      <!-- end of title  -->
+      <!-- about-center -->
+      <div class="section-center about-center">
+        <!-- about img wrapper-->
+
+        <div class="about-img2">
+          <div class=overrlay>
+            <img
+              src="./images/about2.jpg"
+              class="about-photo"
+              alt="awesome beach"
+            />
+          </div>
+          </div>
+     
+        <article class="about-info about-info-2">
+          <h3 class="headingblack" STYLE="font-family: Raleway;">
+            <span
+               class="txt-rotate"
+               data-period="2000"
+               data-rotate='[ "MONITOR...", "MANAGE...", "SAVE..." ]'></span><br>ELECTRICITY</h3>
+               <BR>
+          <p>
+            Smart Energy Meter delivers your home's energy consumption analytics directly to your smartphone. Insights help you reduce electricity bill significantly.
+            Understanding how energy is consumed is the first step towards managing it. 
+            Smart Meter is a robust hardware which takes samples of current and voltage from all phases every single second, makes necessary calculations and transmits the data to our servers.
+
+          </p><br>
+          <p>
+            A portion of the data is then pushed to the mobile application over Internet. Data is also stored on the servers
+             to extract useful insights. So you can always know what's happening in your home even when you are away.</p>
+             <br>
+          <span class="btn-primary btn33">read more</span>
+        </article>
+
+
+
+        
+        <!-- about info -->
+        
+      </div>
+    </section>
+	
+
+
+    <!-- 
+      
+     -->
+     <section class="section services white" id="services">
+      <!-- title  -->
+      <div class="title-wrapper">
+        <h2 class="title ">Smart Meter <span class="subtitle">Features</span></h2>
+      </div>
+      <!-- end of title  -->
+      <div class="section-center services-center">
+        <!-- single service -->
+        <article class="service">
+          <span class="service-icon"><i class="fas fa-wifi fa-fw"></i></span>
+          <div class="service-info">
+            <h4 class="service-title">faster & easier communication</h4>
+            <p class="service-text">
+              Keep eye on the energy consumption of your home in real-time. 
+              Provides an accurate overview of changes in energy consumption.
+            </p>
+          </div>
+        </article>
+        <!-- end of single service -->
+        <!-- single service -->
+        <article class="service">
+          <span class="service-icon"><i class="fas fa-archive fa-fw"></i></span>
+          <div class="service-info">
+            <h4 class="service-title">pre-paid payment</h4>
+            <p class="service-text">
+              Pre-paid payment of bill increases awareness about the potential cost of energy and 
+              encourages energy savings and Helps better manage your budget. 
+            </p>
+          </div>
+        </article>
+        <!-- end of single service -->
+		
+		<!-- single service -->
+        <article class="service">
+          <span class="service-icon"><i class="fas fa-lock fa-fw"></i></span>
+          <div class="service-info">
+            <h4 class="service-title">enhanced security</h4>
+            <p class="service-text">
+              Smart Energy Meter provides enhanced security system which protects against electricity theft and 
+              errors in meter readings.
+            </p>
+          </div>
+        </article>
+        <!-- end of single service -->
+		<!-- single service -->
+    <article class="service">
+      <span class="service-icon"><i class="fas fa-wallet fa-fw"></i></span>
+      <div class="service-info">
+        <h4 class="service-title">cost effective</h4>
+        <p class="service-text">
+          Makes your life energy efficient that can significantly reduce your monthly bills providing 
+          value for an initial investment.
+        </p>
+      </div>
+    </article>
+    <!-- end of single service -->
+      </div>
+    </section>
+    <!-- end of services -->
+    <!-- featured tours -->
+
+
+
+    <section class="section featured-tours black" id="featured">
+      <!-- title  -->
+      <div class="title-wrapper">
+        <h2 class="title title2" style="text-align: center;">Product <span class="subtitle2">Specs</span></h2>
+      </div>
+      <!-- end of title  -->
+      <!-- featured-center -->
+      <div id="pros">
+      <div id="productspecs">Smart Meter uses Nodemcu-ESP8266 development board for communication between database servers and the hardware. The microprocessor is Amtel Arduino. The communication between mobile network and 
+        Smart Meter is done through GSM SIM-900.
+        </div>
+      </div>
+      </div>
+      <!-- <div class="section-center featured-center flexx "> -->
+       <div class="flexx">
+      <div class="flexxx"><figure class="snip1104 blue "><img  src="./images/tour-2.jpg" alt="sample34" />
+        <figcaption>
+          <h2 style="color:#fff; font-size:1rem;">Gsm <span> Sim-900</span></h2>
+        </figcaption>
+      </figure></div>
+        
+       <div class="flexxx"><figure class="snip1104 blue"><img  src="./images/tour-1.jpg" alt="sample34" />
+        <figcaption>
+          <h2 style="color:#fff; font-size:1rem;">Arduino <span> Uno</span></h2>
+        </figcaption>
+      </figure>
+      </div>
+        
+      <div class="flexxx"><figure class="snip1104 blue"><img  src="./images/node2.jpg" alt="sample34" />
+        <figcaption>
+          <h2 style="color:#fff; font-size:1rem;">Node<span>mcu</span></h2>
+        </figcaption>
+      </figure></div>
+
+      <div class="flexxx"><figure class="snip1104 blue"><img  src="./images/3wifi.jpg" alt="sample34" />
+        <figcaption>
+          <h2 style="color:#fff; font-size:1rem;">Esp8266<span>Wifi</span></h2>
+        </figcaption>
+      </figure></div>
+
+       
+        
+        
+       </div>
+        
+        <!-- end of single tour -->
+        
+        <!-- single tour -->
+       
+        <!-- end of single tour -->
+        <!-- single tour -->
+        <!--article class="tour-card">
+          <div class="tour-img-container">
+            <img src="./images/tour-4.jpg" style="width:350px;height:250px;" class="tour-img" alt="" />
+            <p class="tour-date">december 5th, 2019</p>
+          </div> -->
+          <!-- tour footer -->
+          <!--<div class="tour-footer">
+            <h4 class="tour-title">kenya highlights</h4>-->
+            <!-- tour info -->
+            <!--<div class="tour-info">
+              <p class="tour-country">
+                <span><i class="fas fa-map"></i></span> kenya
+              </p>
+              <div class="tour-details">
+                <p>22 days</p>
+                <p>from $5400</p>
+              </div>
+            </div>
+          </div>
+        </article> -->
+        <!-- end of single tour -->
+      </div>
+      <!-- end of tours center -->
+      <div class="tour-link">
+        <span class="btn-primary btn33">Details</span>
+      </div>
+    </section>
+    <!-- end of featured tours -->
+	
+	
+	
+    <!-- end of about section -->
+    
+ 
+    <!-- gallery  -->
+
+
+    <!-- end of about section -->
+    <!-- services -->
+    <section class="section services aboutus" id="services2">
+      <!-- title  -->
+      <div class="title-wrapper">
+        <h2 class="title">About <span class="subtitle">Us</span></h2>
+      </div>
+
+      <div id="pros">
+        <div id="productspecs">Part of the Final Year Project at University of Engineering and Technology, Lahore.</div>
+        </div>
+      <!-- end of title  -->
+      <div class="section-center services-center abt" >
+        <!-- single service -->
+          <div class="service-info ab2">
+            <span class="service-title  btn-white btn2"  >2017 - ee - 32</span>
+            <p class="service-text">
+              <!-- Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Asperiores, officia. -->
+            </p>
+          </div>
+        <!-- end of single service -->
+        <!-- single service -->
+          <div class="service-info ab2 ab3">
+            <span class="service-title  btn-white btn2"  >2017 - ee - 64</span>
+            <p class="service-text">
+              <!-- Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Asperiores, officia. -->
+            </p>
+          </div>
+        <!-- end of single service -->
+        <!-- single service -->
+          <div class="service-info ab2">
+            <span class="service-title  btn-white btn2"  >2017 - ee - 77</span>
+            <p class="service-text">
+              <!-- Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Asperiores, officia. -->
+            </p>
+          </div>
+        <!-- end of single service -->
+		
+		<!-- single service -->
+          <div class="service-info ab2">
+            <span class="service-title  btn-white btn2"  >2017 - ee - 94</span>
+            <p class="service-text">
+              <!-- Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Asperiores, officia. -->
+            </p>
+          </div>
+        <!-- end of single service -->
+		
+      </div>
+    </section>
+
+
+	
+
+
+
+
+
+    <!-- end of gallery  -->
+    <!-- contact -->
+    <section class="section deals" id="deals">
+      <!-- title  -->
+      <div class="title-wrapper">
+        <h2 class="title">sub<span class="subtitle3">scribe</span></h2>
+      </div>
+      <!-- end of title  -->
+      <form>
+        <div class="input-group">
+          <input type="email" class="form-control" placeholder="your email" />
+          <span  class="btn-submit">submit</span>
+        </div>
+      </form>
+    </section>
+    <!-- end of contact -->
+    <!-- footer -->
+    <footer class="section footer">
+      <!-- footer links -->
+      <div class="footer-links">
+        <a href="#home" class="footer-link scroll-link">Home</a>
+        <a href="#about" class="footer-link scroll-link">Explore</a>
+        <a href="#monitor" class="footer-link scroll-link">Meter</a>
+        <a href="#analytics" class="footer-link scroll-link">Analytics</a>
+        <a href="#services" class="footer-link scroll-link">Features</a>
+        <a href="#featured" class="footer-link scroll-link">Specs</a>
+        <a href="#services2" class="footer-link scroll-link" scroll-link>About Us</a>
+
+      </div>
+      <!-- footer icons -->
+      <div class="footer-icons">
+        <a href="https://www.twitter.com" target="_blank" class="footer-icon"
+          ><i class="fab fa-facebook"></i
+        ></a>
+        <!-- <a href="https://www.twitter.com" target="_blank" class="footer-icon"
+          ><i class="fab fa-twitter"></i
+        ></a> -->
+        <a href="https://www.twitter.com" target="_blank" class="footer-icon"
+          ><i class="fab fa-squarespace"></i
+        ></a>
+      </div>
+      <div id="space"></div>
+      <p class="copyright">
+         COPYRIGHT <span id="cp">&copy;</span>  
+        <span id="date"></span> SMART METERS  |  all rights reserved <span class="small" id="vol"></span><span class="small" id="cur"></span>
+      </p>
+    </footer>
+    <!-- js -->
+	<script src="js/app.js"></script>
+
+  <script type="text/babel">
+    // Hero Title Animation
+
+  // ——————————————————————————————————————————————————
+// TextScramble
+// ——————————————————————————————————————————————————
+
+class TextScramble {
+  constructor(el) {
+    this.el = el
+    this.chars = '!<>-_\\/[]{}—=+*^?#________'
+    this.update = this.update.bind(this)
+  }
+  setText(newText) {
+    const oldText = this.el.innerText
+    const length = Math.max(oldText.length, newText.length)
+    const promise = new Promise((resolve) => this.resolve = resolve)
+    this.queue = []
+    for (let i = 0; i < length; i++) {
+      const from = oldText[i] || ''
+      const to = newText[i] || ''
+      const start = Math.floor(Math.random() * 40)
+      const end = start + Math.floor(Math.random() * 40)
+      this.queue.push({ from, to, start, end })
+    }
+    cancelAnimationFrame(this.frameRequest)
+    this.frame = 0
+    this.update()
+    return promise
+  }
+  update() {
+    let output = ''
+    let complete = 0
+    for (let i = 0, n = this.queue.length; i < n; i++) {
+      let { from, to, start, end, char } = this.queue[i]
+      if (this.frame >= end) {
+        complete++
+        output += to
+      } else if (this.frame >= start) {
+        if (!char || Math.random() < 0.28) {
+          char = this.randomChar()
+          this.queue[i].char = char
+        }
+        output += `<span class="dud">${char}</span>`
+      } else {
+        output += from
+      }
+    }
+    this.el.innerHTML = output
+    if (complete === this.queue.length) {
+      this.resolve()
+    } else {
+      this.frameRequest = requestAnimationFrame(this.update)
+      this.frame++
+    }
+  }
+  randomChar() {
+    return this.chars[Math.floor(Math.random() * this.chars.length)]
+  }
+}
+
+// ——————————————————————————————————————————————————
+// Example
+// ——————————————————————————————————————————————————
+
+// const phrases = [
+//   'Neo,',
+//   'sooner or later',
+//   'you\'re going to realize',
+//   'just as I did',
+//   'that there\'s a difference',
+//   'between knowing the path',
+//   'and walking the path'
+// ]
+const phrases = [
+  'SMART ENERGY METER',
+  'REAL-TIME ENERGY MONITORING'
+]
+
+const el = document.querySelector('.text')
+const fx = new TextScramble(el)
+
+let counter = 0
+const next = () => {
+  fx.setText(phrases[counter]).then(() => {
+    setTimeout(next, 2800)
+  })
+  counter = (counter + 1) % phrases.length
+}
+
+next()
+
+    </script>
+  </body>
+</html>
